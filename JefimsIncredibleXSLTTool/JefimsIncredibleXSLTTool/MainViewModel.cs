@@ -1,11 +1,11 @@
 ﻿using ICSharpCode.AvalonEdit.Document;
 using JefimsIncredibleXsltTool.Lib;
+using JefimsIncredibleXsltTool.Transformers;
 using Microsoft.Win32;
 using Saxon.Api;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -24,24 +24,6 @@ using ToastNotifications.Messages;
 
 namespace JefimsIncredibleXsltTool
 {
-    public class Observable : INotifyPropertyChanged
-    {
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected void OnPropertyChanged(string propertyName)
-        {
-            var evt = PropertyChanged;
-            evt?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-    }
-
-    public enum XsltProcessingMode
-    {
-        Saxon,
-        DotNet,
-        Just
-    }
-
     public class MainViewModel : Observable
     {
         public Notifier Notifier = new Notifier(cfg =>
@@ -61,7 +43,7 @@ namespace JefimsIncredibleXsltTool
         });
 
         private Document _document;
-        private XsltProcessingMode _xsltProcessingMode = XsltProcessingMode.Saxon;
+        private XsltProcessingMode _xsltProcessingMode = XsltProcessingMode.SAXON;
         private const string ProgramName = "Jefim's Incredible XSLT Tool";
         public event EventHandler OnTransformFinished;
         public ColorTheme ColorTheme
@@ -241,13 +223,13 @@ namespace JefimsIncredibleXsltTool
                     string result = null;
                     switch (XsltProcessingMode)
                     {
-                        case XsltProcessingMode.Saxon:
-                            result = XsltTransformSaxon(xml, xslt, XsltParameters.Where(o => o?.Name != null).ToArray());
+                        case XsltProcessingMode.SAXON:
+                            result = SaxonTransformer.XsltTransformSaxon(xml, xslt, XsltParameters.Where(o => o?.Name != null).ToArray());
                             break;
-                        case XsltProcessingMode.DotNet:
+                        case XsltProcessingMode.DOTNET:
                             result = XsltTransformDotNet(xml, xslt, XsltParameters.Where(o => o?.Name != null).ToArray());
                             break;
-                        case XsltProcessingMode.Just:
+                        case XsltProcessingMode.JUST:
                             result = JsonTransformUsingJustNet(xml, xslt);
                             break;
                         default:
@@ -344,126 +326,9 @@ namespace JefimsIncredibleXsltTool
             }
         }
 
-        public static string XsltTransformSaxon(string xmlString, string xslt, XsltParameter[] xsltParameters)
-        {
-            var processor = new Processor();
-            var compiler = processor.NewXsltCompiler();
-            compiler.ErrorList = new List<StaticError>();
-
-            using (var xmlDocumentOut = new StringWriter())
-            using (var xsltReader = new StringReader(xslt))
-            using (var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(xmlString)))
-            {
-                XsltExecutable executable;
-                try
-                {
-                    executable = compiler.Compile(xsltReader);
-                }
-                catch (Exception ex)
-                {
-                    var errorsStr = string.Join(Environment.NewLine, ((List<StaticError>)compiler.ErrorList).Select(o => $"{o.Message} at line {o.LineNumber}, column {o.ColumnNumber}").Distinct());
-                    if (string.IsNullOrWhiteSpace(errorsStr))
-                    {
-                        throw;
-                    }
-                    throw new Exception(ex.Message, new Exception(errorsStr));
-                }
-
-                var transformer = executable.Load();
-                transformer.SetInputStream(xmlStream, new Uri("file://"));
-                xsltParameters?.ToList().ForEach(x => transformer.SetParameter(new QName(x.Name), new XdmAtomicValue(x.Value)));
-
-                var serializer = processor.NewSerializer();
-                serializer.SetOutputWriter(xmlDocumentOut);
-                transformer.Run(serializer);
-                return xmlDocumentOut.ToString().Replace("\n", Environment.NewLine);
-            }
-        }
-
         private static string JsonTransformUsingJustNet(string json, string transformer)
         {
             return MainWindow.PrettyJson(JsonTransformer.Transform(transformer, json));
-        }
-    }
-
-    public class Document : Observable
-    {
-        private string _filePath;
-        private string _originalContents;
-        private TextDocument _textDocument;
-
-        public Document()
-        {
-            IsNew = true;
-            var contents = string.Empty;
-            _originalContents = string.Empty;
-            TextDocument = new TextDocument(new StringTextSource(contents));
-        }
-
-        public Document(string filePath)
-        {
-            IsNew = false;
-            FilePath = filePath;
-            var contents = File.ReadAllText(FilePath);
-            _originalContents = contents;
-            TextDocument = new TextDocument(new StringTextSource(contents));
-            TextDocument.Changed += TextDocument_Changed;
-        }
-
-        private void TextDocument_Changed(object sender, DocumentChangeEventArgs e)
-        {
-            OnPropertyChanged("Display");
-            OnPropertyChanged("IsModified");
-        }
-
-        public bool IsNew { get; private set; }
-
-        public bool IsModified => TextDocument != null && TextDocument.Text != _originalContents;
-
-        public TextDocument TextDocument
-        {
-            get => _textDocument;
-            private set
-            {
-                _textDocument = value;
-                OnPropertyChanged("TextDocument");
-            }
-        }
-
-        public string Display
-        {
-            get
-            {
-                var result = IsNew ? "Unsaved document" : Path.GetFileName(FilePath);
-                if (IsModified) result += " *";
-                return result;
-            }
-        }
-
-        public string FilePath
-        {
-            get => _filePath;
-            set
-            {
-                _filePath = value;
-                IsNew = false;
-                OnPropertyChanged("FilePath");
-                OnPropertyChanged("Display");
-            }
-        }
-
-        internal bool Save()
-        {
-            if (FilePath == null)
-            {
-                return false;
-            }
-            File.WriteAllText(FilePath, TextDocument.Text);
-            IsNew = false;
-            _originalContents = TextDocument.Text;
-            OnPropertyChanged("IsModified");
-            OnPropertyChanged("Display");
-            return true;
         }
     }
 }

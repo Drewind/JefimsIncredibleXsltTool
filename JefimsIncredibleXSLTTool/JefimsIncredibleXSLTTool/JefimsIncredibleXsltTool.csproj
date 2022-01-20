@@ -82,6 +82,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Transformers\SaxonTransformer.cs" />
     <Page Include="Contributors.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -101,7 +102,11 @@
     <Compile Include="Contributors.xaml.cs">
       <DependentUpon>Contributors.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Lib\Observable.cs" />
+    <Compile Include="Lib\XsltProcessingMode.cs" />
+    <Compile Include="Lib\Document.cs" />
     <Compile Include="Lib\ColorTheme.cs" />
+    <Compile Include="Lib\LoadIncludeFiles.cs" />
     <Compile Include="Lib\TagCloser.cs" />
     <Compile Include="Lib\XmlCompletionData.cs" />
     <Compile Include="Lib\XPathHelpers.cs" />

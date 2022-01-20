@@ -348,7 +348,7 @@ namespace JefimsIncredibleXsltTool
         {
             try
             {
-                SourceXml.Document.Text = _mainViewModel.XsltProcessingMode == XsltProcessingMode.Just ? PrettyJson(SourceXml.Document.Text) : PrettyXml(SourceXml.Document.Text);
+                SourceXml.Document.Text = _mainViewModel.XsltProcessingMode == XsltProcessingMode.JUST ? PrettyJson(SourceXml.Document.Text) : PrettyXml(SourceXml.Document.Text);
                 _mainViewModel.Notifier.ShowSuccess("Uuuhh, so pretty!");
             }
             catch (Exception ex)
@@ -361,7 +361,7 @@ namespace JefimsIncredibleXsltTool
         {
             try
             {
-                SourceXslt.Document.Text = _mainViewModel.XsltProcessingMode == XsltProcessingMode.Just ? PrettyJson(SourceXslt.Document.Text) : PrettyXml(SourceXslt.Document.Text);
+                SourceXslt.Document.Text = _mainViewModel.XsltProcessingMode == XsltProcessingMode.JUST ? PrettyJson(SourceXslt.Document.Text) : PrettyXml(SourceXslt.Document.Text);
                 _mainViewModel.Notifier.ShowSuccess("It's beautiful!");
             }
             catch (Exception ex)
