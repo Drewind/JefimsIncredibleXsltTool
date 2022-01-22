@@ -94,6 +94,24 @@
                 </Style.Triggers>
             </Style>
 
+            <Style x:Key="StandardBackground" TargetType="StackPanel">
+                <Setter Property="Background" Value="{Binding ColorTheme.EditorReadOnlyBackground}" />
+            </Style>
+
+            <Style TargetType="{x:Type TreeViewItem}">
+                <Setter Property="Foreground" Value="White"/>
+            </Style>
+
+            <!--<Style TargetType="TreeView" BasedOn="{StaticResource SimpleTreeView}">
+                <Setter Property="Background" Value="{Binding ColorTheme.EditorBackground}"/>
+                <Setter Property="Foreground" Value="{Binding ColorTheme.EditorForeground}"/>
+            </Style>
+
+            <Style TargetType="TreeViewItem" BasedOn="{StaticResource SimpleTreeViewItem}">
+                <Setter Property="Background" Value="{Binding ColorTheme.TestingBackground}"/>
+                <Setter Property="Foreground" Value="{Binding ColorTheme.TestingBackground}"/>
+            </Style>-->
+
             <!-- Data Grid has its own data context, so we cannot just refer to window's data context as usual, so we traverse the tree using FindAncestor -->
             <Style BasedOn="{StaticResource {x:Type DataGridColumnHeader}}" TargetType="DataGridColumnHeader">
                 <Setter Property="Background" Value="{Binding DataContext.ColorTheme.MenuBackground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}" />
@@ -176,7 +194,7 @@
             <TextBlock Grid.Column="0" HorizontalAlignment="Right" Margin="0,13,5,0">Made with <Run Foreground="Red">❤</Run> by <Hyperlink Click="MenuItemContributors_Click">these cool people</Hyperlink></TextBlock>
         </Grid>
 
-        <Grid Grid.Row="2" Margin="7">
+        <Grid Grid.Row="2" Margin="0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto"></RowDefinition>
                 <RowDefinition/>
@@ -185,9 +203,16 @@
                 <ColumnDefinition />
                 <ColumnDefinition />
                 <ColumnDefinition />
+                <ColumnDefinition />
             </Grid.ColumnDefinitions>
 
-            <StackPanel HorizontalAlignment="Center">
+            <!-- Explorer -->
+            <StackPanel HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10, 0, 0, 0">
+                <TextBlock FontSize="18" HorizontalAlignment="Center">Explorer</TextBlock>
+            </StackPanel>
+
+            <!-- XSLT Editor -->
+            <StackPanel Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center">
                 <TextBlock FontSize="24" HorizontalAlignment="Center">XSLT</TextBlock>
                 <Grid>
                     <Grid.RowDefinitions>
@@ -202,10 +227,13 @@
                 </Grid>
             </StackPanel>
 
-            <StackPanel Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center">
+            <!-- XML Editor -->
+            <StackPanel Grid.Row="0" Grid.Column="2" HorizontalAlignment="Center">
                 <TextBlock FontSize="24" TextWrapping="Wrap" HorizontalAlignment="Center">XML</TextBlock>
             </StackPanel>
-            <StackPanel Grid.Row="0" Grid.Column="2" HorizontalAlignment="Center">
+            
+            <!-- Output -->
+            <StackPanel Grid.Row="0" Grid.Column="3" HorizontalAlignment="Center">
                 <TextBlock TextWrapping="Wrap" FontSize="24">Output</TextBlock>
                 <Grid>
                     <Grid.RowDefinitions>
@@ -219,14 +247,33 @@
                     <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding ValidationSchemaFile}" MinWidth="70" VerticalAlignment="Center" Margin="5,0,0,0" />
                 </Grid>
             </StackPanel>
+            
+            
+            <!-- Explorer -->
+            <Grid Grid.Column="0" Grid.Row="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
 
-            <Grid Grid.Column="0"
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Style="{StaticResource StandardBackground}">
+                    <TreeView Name="ExplorerTree">
+                    </TreeView>
+                </StackPanel>
+            </Grid>
+
+            <!-- XSLT Editor -->
+            <Grid Grid.Column="1"
                   Grid.Row="1"
                     Margin="0,0,5,0">
                 <Grid.RowDefinitions>
                     <RowDefinition/>
                     <RowDefinition Height="auto"/>
                 </Grid.RowDefinitions>
+                
                 <avalonEdit:TextEditor
                             Name="SourceXslt"
                             FontFamily="Consolas"
@@ -244,9 +291,12 @@
                     <Button Click="ButtonPrettyPrintXslt_Click">Pretty print</Button>
                 </WrapPanel>
             </Grid>
+            
             <GridSplitter Grid.Column="0" Width="5"
                 Grid.Row="1" />
-            <Grid Grid.Column="1"
+            
+            <!-- XML Editor -->
+            <Grid Grid.Column="2"
                   Grid.Row="1">
                 <Grid.RowDefinitions>
                     <RowDefinition/>
@@ -279,9 +329,12 @@
                     </WrapPanel>
                 </StackPanel>
             </Grid>
+            
             <GridSplitter Grid.Column="1" Width="5"
                 Grid.Row="1" />
-            <Grid Grid.Column="2" Grid.Row="1">
+            
+            <!-- Output -->
+            <Grid Grid.Column="3" Grid.Row="1">
                 <Grid.RowDefinitions>
                     <RowDefinition />
                     <RowDefinition Height="auto" />

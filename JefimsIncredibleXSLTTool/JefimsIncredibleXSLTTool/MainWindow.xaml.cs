@@ -28,6 +28,7 @@ namespace JefimsIncredibleXsltTool
         private readonly MainViewModel _mainViewModel;
         private CompletionWindow _completionWindow;
         private readonly XmlFoldingStrategy _strategy;
+
         private FoldingManager _sourceXsltFoldingManager;
         private readonly FoldingManager _sourceXmlFoldingManager;
         private readonly FoldingManager _outputXmlFoldingManager;
@@ -38,6 +39,7 @@ namespace JefimsIncredibleXsltTool
             DataContext = _mainViewModel;
             InitializeComponent();
             LoadOldSettings();
+
             _sourceXmlFoldingManager = FoldingManager.Install(SourceXml.TextArea);
             _sourceXsltFoldingManager = FoldingManager.Install(SourceXslt.TextArea);
             _outputXmlFoldingManager = FoldingManager.Install(OutputXml.TextArea);
@@ -208,6 +210,25 @@ namespace JefimsIncredibleXsltTool
                 _mainViewModel.OpenFile(ofd.FileName);
                 _sourceXsltFoldingManager = FoldingManager.Install(SourceXslt.TextArea);
                 UpdateFolding();
+
+                // WIP
+                var _directory = Path.GetDirectoryName(ofd.FileName);
+                var directoryFiles = Directory.EnumerateFiles(_directory, "*");
+                string directoryName = _directory.Split('\\')[_directory.Split('\\').Length - 1];
+                Console.WriteLine(">> directoryName: " + directoryName);
+                ExplorerTree.Items.Clear();
+
+                TreeViewItem directoryFolder = new TreeViewItem() { Header = directoryName };
+
+                foreach (string currentFile in directoryFiles)
+                {
+                    string directoryFile = currentFile.Substring(_directory.Length + 1);
+                    TreeViewItem newViewItem = new TreeViewItem() { Header = directoryFile.ToString() };
+                    directoryFolder.Items.Add(newViewItem);
+                }
+
+                ExplorerTree.Items.Add(directoryFolder);
+                directoryFolder.ExpandSubtree();
             }
             catch (Exception ex)
             {
